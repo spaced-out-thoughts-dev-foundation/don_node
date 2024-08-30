@@ -110,7 +110,7 @@ export class DON_Node {
 
       socket.on("message", (message: string) => {
         clientLog(`Received message from bootstrap server: ${message}`, [socket.id, server]);
-        socket.emit("message", "Pong");
+        // socket.emit("message", "Pong");
       });
     });
   }
