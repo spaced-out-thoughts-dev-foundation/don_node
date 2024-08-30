@@ -16,6 +16,7 @@ export class DON_Node {
   constructor(port: number, isBootstrap: boolean = false) {
     this.port = port;
     this.server = new Server({ /* options */ });
+    this.isBootstrap = isBootstrap;
 
     this.setupServer();
   }
