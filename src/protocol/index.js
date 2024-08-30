@@ -11,19 +11,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.correspondWithPeer = correspondWithPeer;
 const common_1 = require("../common");
-function correspondWithPeer(peer) {
+function correspondWithPeer(socket, peer) {
     return __awaiter(this, void 0, void 0, function* () {
         let alive = true;
         while (alive) {
             (0, common_1.serverLog)("Pinging peer...", peer);
-            peer[0].send("Ping");
+            socket.send("Ping");
             // Wait for a message from the peer
-            const message = yield (0, common_1.waitForInput)(peer[0]);
+            const message = yield (0, common_1.waitForInput)(socket);
             if (message === false) {
                 // If the peer is no longer alive, break the loop
                 alive = false;
                 (0, common_1.serverLog)("Peer is no longer alive", peer);
-                peer[0].disconnect();
+                socket.disconnect();
                 (0, common_1.serverLog)("Disconnected from peer", peer);
                 break;
             }
@@ -31,3 +31,7 @@ function correspondWithPeer(peer) {
         }
     });
 }
+// healthcheck
+// getPeers
+// collaborate
+// catchup

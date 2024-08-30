@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 
-export type PeerConnection = [Socket, string];
+export type PeerConnection = [string | undefined, string];
 
 export function serverLog(message: string, peer: PeerConnection | null = null) {
   baseLog(`[Server] ${message}`, peer);
