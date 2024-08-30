@@ -9,11 +9,11 @@ export class DON_Node {
   server: Server;
   inboundPeers: PeerConnection[] = [];
   outboundPeers: PeerConnection[] = [];
-  bootstrapped: boolean = false;
+  isBootstrap: boolean = false;
 
-  BOOTSTRAP_SERVERS = ["http://localhost:3000"];
+  BOOTSTRAP_SERVERS = ["http://192.168.4.140:3000"];
 
-  constructor(port: number) {
+  constructor(port: number, isBootstrap: boolean = false) {
     this.port = port;
     this.server = new Server({ /* options */ });
 
@@ -36,7 +36,9 @@ export class DON_Node {
     this.server.listen(3000);
     serverLog(`Node is running on port ${this.port}`);
 
-    this.bootstrap();
+    if (!this.isBootstrap) {
+      this.bootstrap();
+    }
   }
 
   bootstrap() {
@@ -49,7 +51,6 @@ export class DON_Node {
       const socket = io(server);
       socket.on("connect", () => {
         clientLog("Connected to bootstrap server: " + server);
-
         // this.outboundPeers.push([socket, server]);
       });
 
