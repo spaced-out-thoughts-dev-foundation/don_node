@@ -34,22 +34,22 @@ function correspondWithPeer(socket, peer, peersFunction) {
                     break;
             }
         });
-        let alive = true;
-        while (alive) {
-            (0, common_1.serverLog)("Pinging peer...", peer);
-            socket.send("Ping");
-            // Wait for a message from the peer
-            const message = yield (0, common_1.waitForInput)(socket);
-            // if (message === false) {
-            //   // If the peer is no longer alive, break the loop
-            //   alive = false;
-            //   serverLog("Peer is no longer alive", peer);
-            //   socket.disconnect();
-            //   serverLog("Disconnected from peer", peer);
-            //   break;
-            // }
-            yield (0, common_1.sleep)(5000);
-        }
+        // let alive = true;
+        // while (alive) {
+        //   serverLog("Pinging peer...", peer);
+        //   socket.send("Ping");
+        //   // Wait for a message from the peer
+        //   const message = await waitForInput(socket);
+        //   // if (message === false) {
+        //   //   // If the peer is no longer alive, break the loop
+        //   //   alive = false;
+        //   //   serverLog("Peer is no longer alive", peer);
+        //   //   socket.disconnect();
+        //   //   serverLog("Disconnected from peer", peer);
+        //   //   break;
+        //   // }
+        //   await sleep(5000);
+        // }
     });
 }
 // healthcheck

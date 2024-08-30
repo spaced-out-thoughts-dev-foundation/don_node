@@ -108,9 +108,37 @@ export class DON_Node {
         this.peers.push([socket.id, server]);
       });
 
+      // socket.on("message", (message: string) => {
+      //   clientLog(`Received message from bootstrap server: ${message}`, [socket.id, server]);
+      //   // socket.emit("message", "Pong");
+      // });
+
+
+      const peer: PeerConnection = [socket.id, server];
       socket.on("message", (message: string) => {
-        clientLog(`Received message from bootstrap server: ${message}`, [socket.id, server]);
-        // socket.emit("message", "Pong");
+        serverLog(`Received message from peer: ${message}`, peer);
+
+        switch (message) {
+          case "Catchup":
+            serverLog("Peer is catching up", peer);
+            socket.send("Catchup complete");
+            break;
+
+          case "Collaborate":
+            serverLog("Peer is collaborating", peer);
+            socket.send("Collaboration complete");
+            break;
+
+          case "Healthcheck":
+            serverLog("Peer is alive", peer);
+            socket.send("Alive");
+            break;
+
+          case "GetPeers":
+            serverLog("Peer is requesting peers", peer);
+            socket.send(JSON.stringify(this.peers));
+            break;
+        }
       });
     });
   }
