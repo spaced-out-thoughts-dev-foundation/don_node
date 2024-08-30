@@ -28,26 +28,26 @@ export async function correspondWithPeer(socket: Socket, peer: PeerConnection, p
     }
   });
 
-  let alive = true;
-  while (alive) {
-    serverLog("Pinging peer...", peer);
-    socket.send("Ping");
+  // let alive = true;
+  // while (alive) {
+  //   serverLog("Pinging peer...", peer);
+  //   socket.send("Ping");
 
-    // Wait for a message from the peer
-    const message = await waitForInput(socket);
+  //   // Wait for a message from the peer
+  //   const message = await waitForInput(socket);
 
-    // if (message === false) {
-    //   // If the peer is no longer alive, break the loop
-    //   alive = false;
-    //   serverLog("Peer is no longer alive", peer);
-    //   socket.disconnect();
-    //   serverLog("Disconnected from peer", peer);
-    //   break;
-    // }
+  //   // if (message === false) {
+  //   //   // If the peer is no longer alive, break the loop
+  //   //   alive = false;
+  //   //   serverLog("Peer is no longer alive", peer);
+  //   //   socket.disconnect();
+  //   //   serverLog("Disconnected from peer", peer);
+  //   //   break;
+  //   // }
 
 
-    await sleep(5000);
-  }
+  //   await sleep(5000);
+  // }
 }
 
 // healthcheck
