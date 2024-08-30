@@ -1,30 +1,12 @@
 import { Server } from "socket.io";
 import { io } from "socket.io-client";
-import { clientLog, PeerConnection, serverLog, sleep } from "./common";
-import { correspondWithPeer } from "./protocol";
-
-// every 5 minutes
-function shouldPerformConsensus(): boolean {
-  const now = new Date();
-  return now.getSeconds() === 15 && now.getMinutes() % 5 === 0;
-}
-
-// every 3 minutes
-function shouldConfirmCatchup(): boolean {
-  const now = new Date();
-  return now.getSeconds() === 30 && now.getMinutes() % 3 === 0;
-}
-
-// every minute
-function shouldGetPeers(): boolean {
-  const now = new Date();
-  return now.getSeconds() === 0;
-}
+import { clientLog, serverLog } from "./common";
+// import { correspondWithPeer, mainLoop } from "./protocol";
 
 export class DON_Node {
   port: number;
   server: Server;
-  peers: PeerConnection[] = [];
+  peers: NodeConnection[] = [];
   isBootstrap: boolean = false;
 
   BOOTSTRAP_SERVERS = ["http://192.168.4.140:3000"];
@@ -42,72 +24,33 @@ export class DON_Node {
       const clientIp = socket.handshake.address;
 
       serverLog("A user connected", [socket.id, clientIp]);
-
-      this.peers.push([socket.id, clientIp]);
-
-      correspondWithPeer(socket, [socket.id, clientIp], () => this.peers);
+      const connection: NodeConnection = new NodeConnection(socket);
+      connection.execute();
+      this.peers.push(connection);
     });
   }
 
   async start() {
-    this.server.listen(3000);
+    this.server.listen(this.port);
     serverLog(`Node is running on port ${this.port}`);
 
     if (!this.isBootstrap) {
-      this.bootstrapServer();
+      await this.bootstrapServer();
     }
 
     serverLog("Node is running...");
-    while (true) {
-      console.log(`[DEBUG]: ${new Date().getSeconds()}`);
-
-      if (shouldPerformConsensus()) {
-        serverLog("Performing consensus...");
-        this.peers.forEach((peer) => {
-          console.log(`[DEBUG]: Performing consensus with peer ${peer[1]}`);
-          if (peer[0] === undefined) {
-            return;
-          }
-          this.server.to(peer[0]).emit("message", "Collaborate");
-        });
-      }
-
-      if (shouldConfirmCatchup()) {
-        serverLog("Confirming catchup...");
-        this.peers.forEach((peer) => {
-          console.log(`[DEBUG]: Confirming catchup with peer ${peer[1]}`);
-          if (peer[0] === undefined) {
-            return;
-          }
-          this.server.to(peer[0]).emit("message", "Catchup");
-        });
-      }
-
-      if (shouldGetPeers()) {
-        serverLog("Getting peers...");
-        this.peers.forEach((peer) => {
-          console.log(`[DEBUG]: Getting peers from ${peer[1]}`);
-          if (peer[0] === undefined) {
-            return;
-          }
-          this.server.to(peer[0]).emit("message", "GetPeers");
-        });
-      }
-
-      await sleep(1000);
-    }
   }
 
-  bootstrapServer() {
+  async bootstrapServer() {
     clientLog("Bootstrapping...");
 
-    this.BOOTSTRAP_SERVERS.forEach((server) => {
+    this.BOOTSTRAP_SERVERS.forEach(async (server) => {
       const socket = io(server);
-      socket.on("connection", (dock) => {
+      socket.on("connect", async () => {
         clientLog("Connected to bootstrap server: " + server);
-        this.peers.push([socket.id, server]);
-
-        correspondWithPeer(dock, [socket.id, server], () => this.peers);
+        const connection: NodeConnection = new NodeConnection(socket);
+        connection.execute();
+        this.peers.push(connection);
       });
     });
   }

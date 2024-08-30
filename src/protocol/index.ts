@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { serverLog, PeerConnection, waitForInput, sleep } from "../common";
 
-export async function correspondWithPeer(socket: Socket, peer: PeerConnection, peersFunction: () => PeerConnection[]) {
+export async function correspondWithPeer(socket: any, peer: PeerConnection, peersFunction: () => PeerConnection[]) {
   socket.on("message", (message: string) => {
     serverLog(`Received message from peer: ${message}`, peer);
 
@@ -28,30 +28,78 @@ export async function correspondWithPeer(socket: Socket, peer: PeerConnection, p
     }
   });
 
-  // let alive = true;
-  // while (alive) {
-  //   serverLog("Pinging peer...", peer);
-  //   socket.send("Ping");
+  while (true) {
+    console.log(`[DEBUG]: ${new Date().getSeconds()}`);
 
-  //   // Wait for a message from the peer
-  //   const message = await waitForInput(socket);
+    if (shouldPerformConsensus()) {
+      serverLog("Performing consensus...");
+      peersFunction().forEach((peer) => {
+        console.log(`[DEBUG]: Performing consensus with peer ${peer[1]}`);
+        if (peer[0] === undefined) {
+          return;
+        }
+        socket.emit("message", "Collaborate");
+      });
+    }
 
-  //   // if (message === false) {
-  //   //   // If the peer is no longer alive, break the loop
-  //   //   alive = false;
-  //   //   serverLog("Peer is no longer alive", peer);
-  //   //   socket.disconnect();
-  //   //   serverLog("Disconnected from peer", peer);
-  //   //   break;
-  //   // }
+    if (shouldConfirmCatchup()) {
+      serverLog("Confirming catchup...");
+      peersFunction().forEach((peer) => {
+        console.log(`[DEBUG]: Confirming catchup with peer ${peer[1]}`);
+        if (peer[0] === undefined) {
+          return;
+        }
+        socket.emit(peer[0]).emit("message", "Catchup");
+      });
+    }
 
+    if (shouldGetPeers()) {
+      serverLog("Getting peers...");
+      peersFunction().forEach((peer) => {
+        console.log(`[DEBUG]: Getting peers from ${peer[1]}`);
+        if (peer[0] === undefined) {
+          return;
+        }
+        socket.emit(peer[0]).emit("message", "GetPeers");
+      });
+    }
 
-  //   await sleep(5000);
-  // }
+    if (shouldSendHealthcheck()) {
+      serverLog("Sending healthcheck...");
+      peersFunction().forEach((peer) => {
+        console.log(`[DEBUG]: Sending healthcheck to ${peer[1]}`);
+        if (peer[0] === undefined) {
+          return;
+        }
+        socket.emit(peer[0]).emit("message", "Healthcheck");
+      });
+    }
+
+    await sleep(1000);
+  }
 }
 
-// healthcheck
-// getPeers
-// collaborate
-// catchup
+// every 5 minutes
+function shouldPerformConsensus(): boolean {
+  const now = new Date();
+  return now.getSeconds() === 15 && now.getMinutes() % 1 === 0;
+}
 
+// every 3 minutes
+function shouldConfirmCatchup(): boolean {
+  const now = new Date();
+  return now.getSeconds() === 30 && now.getMinutes() % 1 === 0;
+}
+
+// every minute
+function shouldGetPeers(): boolean {
+  const now = new Date();
+  return now.getSeconds() === 0;
+}
+
+
+// every minute
+function shouldSendHealthcheck(): boolean {
+  const now = new Date();
+  return now.getSeconds() === 0;
+}
