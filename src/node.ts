@@ -45,7 +45,7 @@ export class DON_Node {
 
       this.peers.push([socket.id, clientIp]);
 
-      const peer: PeerConnection = [socket.id, server];
+      const peer: PeerConnection = [socket.id, clientIp];
       socket.on("message", (message: string) => {
         serverLog(`Received message from peer: ${message}`, peer);
 
