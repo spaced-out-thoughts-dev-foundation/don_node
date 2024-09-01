@@ -13,7 +13,7 @@ export class DON_Node {
   name: string;
   logger: Logger;
 
-  BOOTSTRAP_SERVERS = ["192.168.4.139:3000", "192.168.4.139:6000"];
+  BOOTSTRAP_SERVERS = ["192.168.4.138:3000"];
 
   constructor(port: number, isBootstrap: boolean = false) {
     this.port = port;
