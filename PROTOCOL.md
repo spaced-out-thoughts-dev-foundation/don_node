@@ -43,21 +43,3 @@ All this information along with future messages will be signed in order to ensur
 ## Disconnection From Network
 
 ***
-
-
-## [Core Concepts]
-
-**State:** work is represented by manifests. Each manifest is updated by a series of operations. We intend to keep each manifest as short as possible, targeting a maximum "chain" size of 5gb.
-
-A minimum definition of work is:
-
-```
-Description: a short link
-Sponsor: public key
-Claimant: public key
-Reward: XLM amount
-```
-
-We want to standardize a minimum definition since organizations are free to implement the details as they wish. Furthermore, we only need sponsor and claimant public keys to derive reputation.
-
-**Reputation:**

@@ -23,30 +23,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StateDataReader = void 0;
-// import { IStateData } from "./common";
-const fs = __importStar(require("fs"));
-class StateDataReader {
-    static readStateData(filePath) {
-        console.log("Reading state data...");
-        let returnData = [];
-        // Read the CSV file
-        const data = fs.readFileSync(filePath, 'utf8');
-        // Parse the CSV data
-        const parsed = data.split(',').map((line) => {
-            return {
-                id: Number(line.slice(0, 20)),
-                sponsor: line.slice(20, 76),
-                claimant: line.slice(76, 132),
-                status: Number(line.slice(132, 134)),
-                reward: Number(line.slice(134, 154)),
-                descriptionHash: line.slice(154, 218),
-                locationHash: line.slice(218, 282),
-                unused: line.slice(282, line.length),
-            };
-        });
-        returnData = parsed;
-        return returnData;
-    }
+exports.sha256 = sha256;
+exports.signData = signData;
+exports.verifyData = verifyData;
+const crypto = __importStar(require("crypto"));
+const buffer_1 = require("buffer");
+function sha256(input) {
+    return crypto.createHash('sha256').update(input).digest('hex');
 }
-exports.StateDataReader = StateDataReader;
+function signData(data, keyPair) {
+    return keyPair.sign(buffer_1.Buffer.from(data, 'utf8')).toString('hex');
+}
+function verifyData(data, signature, keyPair) {
+    return keyPair.verify(buffer_1.Buffer.from(data, 'utf8'), buffer_1.Buffer.from(signature, 'hex'));
+}
